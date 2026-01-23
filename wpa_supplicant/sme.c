@@ -40,6 +40,9 @@ static void sme_auth_timer(void *eloop_ctx, void *timeout_ctx);
 static void sme_assoc_timer(void *eloop_ctx, void *timeout_ctx);
 static void sme_obss_scan_timeout(void *eloop_ctx, void *timeout_ctx);
 static void sme_stop_sa_query(struct wpa_supplicant *wpa_s);
+#ifdef CONFIG_MTK_COMMON
+static int sme_sae_set_pmk(struct wpa_supplicant *wpa_s, const u8 *bssid);
+#endif /* CONFIG_MTK_COMMON */
 
 
 #ifdef CONFIG_SAE
@@ -1963,6 +1966,14 @@ static int sme_sae_auth(struct wpa_supplicant *wpa_s, u16 auth_transaction,
 		sae_clear_temp_data(&wpa_s->sme.sae);
 		wpa_s_clear_sae_rejected(wpa_s);
 
+#ifdef CONFIG_MTK_COMMON
+		if (sme_sae_set_pmk(wpa_s,
+				    wpa_s->sme.ext_ml_auth ?
+				    wpa_s->sme.ext_auth_ap_mld_addr :
+				    wpa_s->sme.ext_auth_bssid) < 0)
+			return -1;
+#endif /* CONFIG_MTK_COMMON */
+
 		if (external) {
 			/* Report success to driver */
 			sme_send_external_auth_status(wpa_s,
@@ -2044,11 +2055,13 @@ void sme_external_auth_mgmt_rx(struct wpa_supplicant *wpa_s,
 		if (res != 1)
 			return;
 
+#ifndef CONFIG_MTK_COMMON
 		if (sme_sae_set_pmk(wpa_s,
 				    wpa_s->sme.ext_ml_auth ?
 				    wpa_s->sme.ext_auth_ap_mld_addr :
 				    wpa_s->sme.ext_auth_bssid) < 0)
 			return;
+#endif /* CONFIG_MTK_COMMON */
 	}
 }
 
