@@ -3845,10 +3845,12 @@ static int wpa_ver_supported(struct wpa_driver_nl80211_data *drv,
 			* NL80211_ATTR_SAE_PASSWORD is related and was added
 			* at the same time as NL80211_WPA_VERSION_3.
 			*/
+#ifndef CONFIG_MTK_COMMON
 			if (nl80211_attr_supported(drv, NL80211_ATTR_SAE_PASSWORD) &&
 				wpa_key_mgmt_sae(key_mgmt_suites))
 				ver |= NL80211_WPA_VERSION_3;
 			else
+#endif /* CONFIG_MTK_COMMON */
 				ver |= NL80211_WPA_VERSION_2;
 		} else {
 			ver |= NL80211_WPA_VERSION_2;
